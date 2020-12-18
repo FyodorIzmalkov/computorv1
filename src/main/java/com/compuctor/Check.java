@@ -1,5 +1,7 @@
 package com.compuctor;
 
+import static com.compuctor.Main.sqrt;
+
 public class Check {
     public static void main(String[] args) {
         String str = "";
@@ -19,5 +21,9 @@ public class Check {
         Double dabl = 5.0;
         System.out.println(dabl % 1 == 0 ? dabl.longValue() : dabl);
         System.out.println(dabl % 1 == 0 ? dabl : dabl.longValue());
+        System.out.println(sqrt(4));
+        System.out.println(sqrt(9));
+        System.out.println(sqrt(25));
+        System.out.println(sqrt(17));
     }
 }

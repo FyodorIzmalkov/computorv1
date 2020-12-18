@@ -1,6 +1,5 @@
 package com.compuctor;
 
-import com.sun.xml.internal.ws.api.model.wsdl.WSDLOutput;
 import lombok.Getter;
 
 import java.util.*;
@@ -38,16 +37,21 @@ public class Main {
         splitAndParse(strToParse);
         // poluchaem {0=[5.0, -1.0], 1=[4.0], 2=[-9.3]}
         Set<Long> degreeSet = map.keySet();
-        long maxDegree = 0;
-        for (Long degree : degreeSet) {
-            if (degree > 2) {
-                System.out.println("NIMOGU RESHIT");
-                System.exit(1);
-            }
-            if (degree > maxDegree) {
-                maxDegree = degree;
-            }
-        }
+        long maxDegree = degreeSet.stream()
+                .mapToLong(Long::longValue)
+                .max()
+                .orElse(0L);
+
+
+//        for (Long degree : degreeSet) {
+//            if (degree > 2) {
+//                System.out.println("NIMOGU RESHIT");
+//                System.exit(1);
+//            }
+//            if (degree > maxDegree) {
+//                maxDegree = degree;
+//            }
+//        }
 
         System.out.println(map.toString());
 
@@ -86,25 +90,48 @@ public class Main {
         System.out.println("Reduced form: " + reducedForm);
         System.out.println("Polynomial degree: " + maxDegree);
 
+        if (maxDegree > 2) {
+            System.out.println("The polynomial degree is strictly greater than 2, I can't solve.");
+            System.exit(1);
+        }
+
         if (maxDegree == 0) {
-            System.out.println("VSE PLOHO JOPA");
+            if (finalMap.get(ZERO_DEGREE) == 0D) {
+                System.out.println("Each real number is a solution.");
+            } else {
+                System.out.println("There are no solutions, the equation is incorrect.");
+            }
         } else if (maxDegree == 1) {
-            Double coeffZeroDegree = finalMap.get(ZERO_DEGREE) * -1;
-            Double coeffFirstDegree = finalMap.get(FIRST_DEGREE);
-            System.out.println("The solution is:");
-            System.out.println(coeffZeroDegree / coeffFirstDegree);
-        } else if (maxDegree == 2) {
+            Double c = finalMap.get(ZERO_DEGREE) * -1; // потому что перекидываем через равно
+            Double b = finalMap.get(FIRST_DEGREE);
+            System.out.println("The solution is: ");
+            System.out.printf("%.6f%n", (c / b));
+        } else {
             // a - SECOND b - FIRST c = ZERO
             // D = b * b - 4 * a * c
+            Double a = finalMap.get(SECOND_DEGREE);
+            Double b = finalMap.get(FIRST_DEGREE);
             Double c = finalMap.get(ZERO_DEGREE);
-            Double a = finalMap.get(FIRST_DEGREE);
-            Double b = finalMap.get(SECOND_DEGREE);
 
-            double discr = b * b - 4 * a * c;
-            if (discr < 0){
-                System.out.println("КОРНЕЙ НЕТ НО НАДО ЗАПИЛИТЬ НАХОЖЖДЕНИЕ ХРЕНОВЫХ ЧИСЕЛ");
-            } else if (discr == 0){
-                System.out.println("EST ROVNO ODIN KOREN");
+            double discriminant = b * b - 4 * a * c;
+            System.out.println("Discriminant: " + discriminant);
+            if (discriminant < 0) {
+                System.out.println("Discriminant is strictly negative, the two solutions are: ");
+                double minusB = -1 * b;
+                double sqrtOfDiscriminant = sqrt(discriminant * -1);
+                double twoA = 2 * a;
+                System.out.println(String.format("%.6f", (minusB / twoA)) + " + " + String.format("%.6f", (sqrtOfDiscriminant / twoA)) + "i");
+                System.out.println(String.format("%.6f", (minusB / twoA)) + " - " + String.format("%.6f", (sqrtOfDiscriminant / twoA)) + "i");
+            } else if (discriminant == 0) {
+                System.out.println("Discriminant is equal to zero, the solution is: ");
+                double x1 = ((-1 * b) - sqrt(discriminant)) / (2 * a);
+                System.out.printf("%.6f%n", x1);
+            } else {
+                System.out.println("Discriminant is strictly positive, the two solutions are: ");
+                double x1 = ((-1 * b) - sqrt(discriminant)) / (2 * a);
+                double x2 = ((-1 * b) + sqrt(discriminant)) / (2 * a);
+                System.out.printf("%.6f%n", x1);
+                System.out.printf("%.6f%n", x2);
             }
         }
 
@@ -138,7 +165,9 @@ public class Main {
         String rightPart = strArr[1];
 
         parseString(leftPart, LEFT_PART);
-        parseString(rightPart, RIGHT_PART);
+        if (!"0".equals(rightPart)) {
+            parseString(rightPart, RIGHT_PART);
+        }
     }
 
     //isLeftPart yes = 1, no - 1 multiplicator
@@ -191,6 +220,7 @@ public class Main {
             numDouble = Double.parseDouble(number.toString()) * multiplicator;
         } catch (Exception e) {
             System.out.println("error double parsing");
+            System.out.println(e.toString());
             System.exit(1);
         }
 
@@ -199,6 +229,7 @@ public class Main {
             degreeLong = Long.parseLong(degree.toString());
         } catch (Exception e) {
             System.out.println("error long parsing");
+            System.out.println(e.toString());
             System.exit(1);
         }
 
