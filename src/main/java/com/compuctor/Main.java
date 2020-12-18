@@ -20,7 +20,7 @@ public class Main {
 
     public static void main(String[] args) {
         if (args.length != 1) {
-            System.out.println("ploho");
+            System.out.println("Type in only 1 argument!");
             System.exit(1);
         }
 
@@ -33,8 +33,8 @@ public class Main {
                 .replace("-+", "-");
 
         System.out.println(strToParse);
-
         splitAndParse(strToParse);
+
         // poluchaem {0=[5.0, -1.0], 1=[4.0], 2=[-9.3]}
         Set<Long> degreeSet = map.keySet();
         long maxDegree = degreeSet.stream()
@@ -42,16 +42,6 @@ public class Main {
                 .max()
                 .orElse(0L);
 
-
-//        for (Long degree : degreeSet) {
-//            if (degree > 2) {
-//                System.out.println("NIMOGU RESHIT");
-//                System.exit(1);
-//            }
-//            if (degree > maxDegree) {
-//                maxDegree = degree;
-//            }
-//        }
 
         System.out.println(map.toString());
 
@@ -64,30 +54,8 @@ public class Main {
         System.out.println(map.toString());
         System.out.println(finalMap.toString());
 
-        //"5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0"
-        //TODO REDUCED FORM
-        String reducedForm = "";
-        for (Map.Entry<Long, Double> entry : finalMap.entrySet()) {
-            Double val = entry.getValue();
 
-            if (val < 0) {
-                reducedForm += "- ";
-                val *= -1;
-            } else if (!reducedForm.isEmpty()) {
-                reducedForm += "+ ";
-            }
-
-            if (val % 1 == 0) {
-                reducedForm += val.longValue();
-            } else {
-                reducedForm += val;
-            }
-            reducedForm += " * X^";
-            reducedForm += entry.getKey();
-            reducedForm += " ";
-        }
-        reducedForm += "= 0";
-        System.out.println("Reduced form: " + reducedForm);
+        System.out.println("Reduced form: " + getReducedFormOfEquation());
         System.out.println("Polynomial degree: " + maxDegree);
 
         if (maxDegree > 2) {
@@ -134,28 +102,33 @@ public class Main {
                 System.out.printf("%.6f%n", x2);
             }
         }
-
-//        Pattern pattern = Pattern.compile("[0-9X\s\^\-\+\*\=\\.\\/]+$");
-//        Matcher matcher = pattern.matcher(strToParse);
-//        equationRegex = re.compile('[0-9X\s\^\-\+\*\=\.\/]+$')
-        // Find all matches
-//        while (matcher.find()) {
-//            // Get the matching string
-//            String match = matcher.group();
-//            System.out.println(match);
-//        }
-
-//        Scanner scanner = new Scanner(System.in);
-//        while(true){
-//            String line = scanner.nextLine();
-//            System.out.println(line);
-//        }
     }
 
-//              "5123 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0"
-// Reduced form: 4 * X^0 + 4 * X^1 - 9.3 * X^2 = 0
-// "5 + 4 * X + X^2= X^2"
-// Reduced form: 5 + 4 * X = 0
+    private static String getReducedFormOfEquation() {
+        StringBuilder reducedForm = new StringBuilder();
+        for (Map.Entry<Long, Double> entry : finalMap.entrySet()) {
+            Double val = entry.getValue();
+
+            if (val < 0) {
+                reducedForm.append("- ");
+                val *= -1;
+            } else if (reducedForm.length() > 0) {
+                reducedForm.append("+ ");
+            }
+
+            if (val % 1 == 0) {
+                reducedForm.append(val.longValue());
+            } else {
+                reducedForm.append(val);
+            }
+            reducedForm.append(" * X^");
+            reducedForm.append(entry.getKey());
+            reducedForm.append(" ");
+        }
+        reducedForm.append("= 0");
+
+        return reducedForm.toString();
+    }
 
 
     // poluchaem {0=[5.0, -1.0], 1=[4.0], 2=[-9.3]}
@@ -235,18 +208,6 @@ public class Main {
 
         map.computeIfAbsent(degreeLong, k -> new ArrayList<>()).add(numDouble);
         return i;
-    }
-
-    // "5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0"
-    public static int getMaxDegree(String str) {
-        String[] strArr = str.split("=");
-        String leftPart = strArr[0];
-        String rightPart = strArr[1];
-
-
-        System.out.println(leftPart);
-        System.out.println(rightPart);
-        return 1;
     }
 
     public static double sqrt(double number) {
