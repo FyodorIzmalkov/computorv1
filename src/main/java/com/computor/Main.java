@@ -1,4 +1,4 @@
-package com.compuctor;
+package com.computor;
 
 import lombok.Getter;
 
@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.compuctor.Constants.*;
+import static com.computor.Constants.*;
 import static java.lang.Character.isDigit;
 
 public class Main {
@@ -15,27 +15,31 @@ public class Main {
     private static final char DOT = '.';
     @Getter
     private static final Map<Long, List<Double>> map = new HashMap<>();
+    @Getter
     private static final Map<Long, Double> finalMap = new HashMap<>();
 
     public static void main(String[] args) {
+        solveEquation(args);
+    }
+
+    public static void solveEquation(String[] args) {
         if (args.length != 1) {
             System.out.println("Type in only 1 argument!");
             System.exit(1);
         }
 
-        String strToParse = applyRegexp(args[0]);
-        validateInputString(strToParse);
-        parseStringToMap(strToParse);
-        calculateCoefficientsInMap();
-        long maxDegree = getMaxPolynomialDegree();
-
-        //TODO DELETE
-        System.out.println(map.toString());
-        System.out.println(finalMap.toString());
-
-        printReducedFormAndMaxDegree(maxDegree);
-        checkMaxDegreeAndAllRealNumbersSolution(maxDegree);
-        solveEquationAndPrintResult(maxDegree);
+        try {
+            String strToParse = applyRegexp(args[0]);
+            validateInputString(strToParse);
+            parseStringToMap(strToParse);
+            calculateCoefficientsInMap();
+            long maxDegree = getMaxPolynomialDegree();
+            printReducedFormAndMaxDegree(maxDegree);
+            checkMaxDegreeAndAllRealNumbersSolution(maxDegree);
+            solveEquationAndPrintResult(maxDegree);
+        } catch (Exception e) {
+            System.out.println(e.getLocalizedMessage());
+        }
     }
 
     private static String getReducedFormOfEquation() {
@@ -94,7 +98,7 @@ public class Main {
             char curChar = str.charAt(i);
             if (isDigit(curChar) || DOT == curChar || '-' == curChar || '+' == curChar) {
                 String tmpStr = number.toString();
-                if (tmpStr.length() >= 1 && isDigit(tmpStr.charAt(tmpStr.length() - 1))) {
+                if (tmpStr.length() >= 1 && isDigit(tmpStr.charAt(tmpStr.length() - 1)) && ('-' == curChar || '+' == curChar)) {
                     appendX0 = true;
                     i++;
                     break;
@@ -210,8 +214,9 @@ public class Main {
 
     private static void checkMaxDegreeAndAllRealNumbersSolution(long maxDegree) {
         if (maxDegree > 2) {
-            System.out.println("The polynomial degree is strictly greater than 2, I can't solve.");
-            System.exit(1);
+            throw new IllegalArgumentException("The polynomial degree is strictly greater than 2, I can't solve.");
+//            System.out.println("The polynomial degree is strictly greater than 2, I can't solve.");
+//            System.exit(1); // TODO REDO ALL FOR EXCEPTIONS
         }
 
         if (finalMap.values().stream().allMatch(val -> val == 0)) {

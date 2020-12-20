@@ -1,6 +1,6 @@
-package com.compuctor;
+package com.computor;
 
-import static com.compuctor.Main.sqrt;
+import static com.computor.Main.sqrt;
 
 public class Check {
     public static void main(String[] args) {

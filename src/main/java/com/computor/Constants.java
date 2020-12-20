@@ -1,4 +1,4 @@
-package com.compuctor;
+package com.computor;
 
 public class Constants {
     public static final int LEFT_PART = 1;
@@ -6,6 +6,4 @@ public class Constants {
     public static final Long ZERO_DEGREE = 0L;
     public static final Long FIRST_DEGREE = 1L;
     public static final Long SECOND_DEGREE = 2L;
-
-
 }
