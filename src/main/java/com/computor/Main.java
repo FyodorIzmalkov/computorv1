@@ -29,8 +29,7 @@ public class Main {
         }
 
         try {
-            String strToParse = applyRegexp(args[0]);
-            validateInputString(strToParse);
+            String strToParse = validateAndApplyRegexp(args[0]);
             parseStringToMap(strToParse);
             calculateCoefficientsInMap();
             long maxDegree = getMaxPolynomialDegree();
@@ -79,7 +78,6 @@ public class Main {
         }
     }
 
-    //isLeftPart yes = 1, no - 1 multiplicator
     public static void parseString(String str, int multiplicator) {
         Integer i = 0;
         while (isDigit(str.charAt(i)) || X == str.charAt(i) || '-' == str.charAt(i) || '+' == str.charAt(i)) {
@@ -90,7 +88,6 @@ public class Main {
         }
     }
 
-    // 5123*X^0 or 4*X^1 or 9.3*X^2      5123*x^0+4*x^1-9.3*x^2=1*x^0
     private static Integer parsePartsAndAddToMap(String str, Integer i, int len, int multiplicator) {
         StringBuilder number = new StringBuilder();
         boolean appendX0 = false;
@@ -100,7 +97,6 @@ public class Main {
                 String tmpStr = number.toString();
                 if (tmpStr.length() >= 1 && isDigit(tmpStr.charAt(tmpStr.length() - 1)) && ('-' == curChar || '+' == curChar)) {
                     appendX0 = true;
-                    i++;
                     break;
                 }
                 number.append(curChar);
@@ -130,14 +126,13 @@ public class Main {
             }
 
             if (DOT == curChar) {
-                System.out.println("Degree must be integer");
-                System.exit(1);
+                throw new IllegalArgumentException("Degree must be integer");
             }
 
             i++;
         }
 
-        double numDouble = 0;
+        double numDouble;
         try {
             String numberStr = number.toString();
             if ("-".equals(numberStr)) {
@@ -147,25 +142,22 @@ public class Main {
             }
             numDouble = Double.parseDouble(numberStr) * multiplicator;
         } catch (Exception e) {
-            System.out.println("Error while parsing number");
-            System.out.println(e.toString());
-            System.exit(1);
+            throw new IllegalArgumentException("Error while parsing number");
         }
 
-        long degreeLong = 0;
+        long degreeLong;
         try {
             degreeLong = Long.parseLong(degree.toString());
         } catch (Exception e) {
-            System.out.println("Error while parsing degree");
-            System.out.println(e.toString());
-            System.exit(1);
+            throw new IllegalArgumentException("Error while parsing degree");
         }
 
         map.computeIfAbsent(degreeLong, k -> new ArrayList<>()).add(numDouble);
         return i;
     }
 
-    public static String applyRegexp(String strToParse) {
+    public static String validateAndApplyRegexp(String strToParse) {
+        validateInputString(strToParse.toLowerCase());
         return strToParse
                 .trim()
                 .replace(" ", "")
@@ -177,6 +169,10 @@ public class Main {
     }
 
     public static double sqrt(double number) {
+        if (number == 0.0) {
+            return 0;
+        }
+
         double t;
 
         double squareRoot = number / 2;
@@ -215,13 +211,10 @@ public class Main {
     private static void checkMaxDegreeAndAllRealNumbersSolution(long maxDegree) {
         if (maxDegree > 2) {
             throw new IllegalArgumentException("The polynomial degree is strictly greater than 2, I can't solve.");
-//            System.out.println("The polynomial degree is strictly greater than 2, I can't solve.");
-//            System.exit(1); // TODO REDO ALL FOR EXCEPTIONS
         }
 
         if (finalMap.values().stream().allMatch(val -> val == 0)) {
-            System.out.println("Each real number is a solution.");
-            System.exit(1);
+            throw new IllegalArgumentException("Each real number is a solution.");
         }
     }
 
@@ -247,8 +240,8 @@ public class Main {
                 double minusB = -1 * b;
                 double sqrtOfDiscriminant = sqrt(discriminant * -1);
                 double twoA = 2 * a;
-                System.out.println(String.format("%.6f", (minusB / twoA)) + " + " + String.format("%.6f", (sqrtOfDiscriminant / twoA)) + "i");
-                System.out.println(String.format("%.6f", (minusB / twoA)) + " - " + String.format("%.6f", (sqrtOfDiscriminant / twoA)) + "i");
+                System.out.println((String.format("%.6f", (minusB / twoA)) + " + " + String.format("%.6f", (sqrtOfDiscriminant / twoA)) + "i").replace(" + -", " - "));
+                System.out.println((String.format("%.6f", (minusB / twoA)) + " - " + String.format("%.6f", (sqrtOfDiscriminant / twoA)) + "i").replace(" - -", " + "));
             } else if (discriminant == 0) {
                 System.out.println("Discriminant is equal to zero, the solution is: ");
                 double x1 = ((-1 * b) - sqrt(discriminant)) / (2 * a);
@@ -267,8 +260,7 @@ public class Main {
         String availableCharacters = "0123456789^+=-*x. ";
         for (int i = 0; i < str.length(); i++) {
             if (!availableCharacters.contains(String.valueOf(str.charAt(i)))) {
-                System.out.println("Equation is not valid, it contains wrong characters");
-                System.exit(1);
+                throw new IllegalArgumentException("Equation is not valid, it contains wrong characters");
             }
         }
     }
