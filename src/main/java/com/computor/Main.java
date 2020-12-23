@@ -1,7 +1,9 @@
 package com.computor;
 
 import lombok.Getter;
+import lombok.Setter;
 
+import java.math.BigInteger;
 import java.util.*;
 
 import static com.computor.Constants.*;
@@ -10,23 +12,33 @@ import static java.lang.Character.isDigit;
 public class Main {
     private static final char X = 'x';
     private static final char DOT = '.';
+    private static final String irreducibleFlag = "-irr";
+    @Setter
+    private static boolean irrFlag = false;
     @Getter
     private static final Map<Long, List<Double>> map = new HashMap<>();
     @Getter
     private static final Map<Long, Double> finalMap = new HashMap<>();
 
     public static void main(String[] args) {
-        solveEquation(args);
+        if (args.length == 1 || args.length == 2) {
+            if (irreducibleFlag.equals(args[0])) {
+                irrFlag = true;
+                solveEquation(args[1]);
+            } else if (irreducibleFlag.equals(args[1])) {
+                irrFlag = true;
+                solveEquation(args[0]);
+            } else {
+                System.out.println("Wrong flag, correct flag is: -irr");
+            }
+        } else {
+            System.out.println("Type only 1 or 2 arguments!");
+        }
     }
 
-    public static void solveEquation(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Type in only 1 argument!");
-            System.exit(1);
-        }
-
+    public static void solveEquation(String str) {
         try {
-            String strToParse = validateAndApplyRegexp(args[0]);
+            String strToParse = validateAndApplyRegexp(str);
             validateInputString(strToParse);
             parseStringToMap(strToParse);
             calculateCoefficientsInMap();
@@ -52,7 +64,7 @@ public class Main {
             }
 
             if (val % 1 == 0) {
-                reducedForm.append(val.longValue());
+                reducedForm.append(String.format("%.0f", val));
             } else {
                 reducedForm.append(val);
             }
@@ -138,9 +150,10 @@ public class Main {
             } else if ("+".equals(numberStr) || numberStr.isEmpty()) {
                 numberStr = "1";
             }
+
             numDouble = Double.parseDouble(numberStr) * multiplicator;
         } catch (Exception e) {
-            throw new IllegalArgumentException("Error while parsing number");
+            throw new IllegalArgumentException("Error while parsing degree: " + e.getLocalizedMessage());
         }
 
         long degreeLong;
@@ -149,9 +162,15 @@ public class Main {
             if (degreeStr.isEmpty()) {
                 degreeStr = "0";
             }
+
+            BigInteger bigInt = new BigInteger(degreeStr);
+            if (bigInt.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
+                throw new IllegalArgumentException(degreeStr + ": value is too large");
+            }
+
             degreeLong = Long.parseLong(degreeStr);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Error while parsing degree");
+            throw new IllegalArgumentException("Error while parsing degree: " + e.getLocalizedMessage());
         }
 
         map.computeIfAbsent(degreeLong, k -> new ArrayList<>()).add(numDouble);
@@ -226,7 +245,11 @@ public class Main {
             double c = Optional.ofNullable(finalMap.get(ZERO_DEGREE)).orElse(0.0D) * -1; // потому что перекидываем через равно
             double b = Optional.ofNullable(finalMap.get(FIRST_DEGREE)).orElse(0.0D);
             System.out.println("The solution is: ");
-            System.out.printf("%.6f%n", (c / b));
+            if (!irrFlag) {
+                System.out.printf("%.6f%n", (c / b));
+            } else {
+                printSolutionForOneDegree(c, b);
+            }
         } else {
             // a - SECOND b - FIRST c = ZERO
             // D = b * b - 4 * a * c
@@ -258,11 +281,66 @@ public class Main {
     }
 
     private static void validateInputString(String str) {
+        Map<Character, Long> charsMap = new HashMap<>();
+
         String availableCharacters = "0123456789^+=-*x. ";
         for (int i = 0; i < str.length(); i++) {
-            if (!availableCharacters.contains(String.valueOf(str.charAt(i)))) {
+            char curChar = str.charAt(i);
+            if (charsMap.containsKey(curChar)) {
+                Long val = charsMap.get(curChar);
+                val++;
+                charsMap.put(curChar, val);
+            } else {
+                charsMap.put(curChar, 1L);
+            }
+            if (!availableCharacters.contains(String.valueOf(curChar))) {
                 throw new IllegalArgumentException("Equation is not valid, it contains wrong characters");
             }
+        }
+
+        if (charsMap.get('=') == null || charsMap.get('=') != 1L) {
+            throw new IllegalArgumentException("There are must be one character of '='");
+        }
+    }
+
+    private static double gcdByEuclidsAlgorithm(double n1, double n2) {
+        if (n2 == 0) {
+            return n1;
+        }
+
+        return gcdByEuclidsAlgorithm(n2, n1 % n2);
+    }
+
+    private static double abs(double a) {
+        return (a <= 0.0D) ? 0.0D - a : a;
+    }
+
+    private static long abs(long a) {
+        return (a < 0) ? -a : a;
+    }
+
+    private static void printSolutionForOneDegree(double c, double b) {
+        while (abs(c) % 1 != 0) {
+            c *= 10;
+            b *= 10;
+        }
+        double gcd = gcdByEuclidsAlgorithm(c, b);
+        c /= gcd;
+        b /= gcd;
+        double tmp = c / b;
+        boolean wasNegative = tmp < 0;
+        long res = abs((long) tmp);
+        c = abs(c);
+        b = abs(b);
+        if (res >= 1) {
+            c -= b * res;
+            if (c == 0.0D) {
+                System.out.println((wasNegative ? "-" : "") + res);
+                return;
+            }
+            System.out.println((wasNegative ? "-" : "") + res + " * " + String.format("%.0f", c) + "/" + String.format("%.0f", b));
+        } else {
+            System.out.println((wasNegative ? "-" : "") + String.format("%.0f", c) + "/" + String.format("%.0f", b));
         }
     }
 }
