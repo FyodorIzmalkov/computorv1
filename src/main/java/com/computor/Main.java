@@ -2,10 +2,7 @@ package com.computor;
 
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.computor.Constants.*;
 import static java.lang.Character.isDigit;
@@ -30,6 +27,7 @@ public class Main {
 
         try {
             String strToParse = validateAndApplyRegexp(args[0]);
+            validateInputString(strToParse);
             parseStringToMap(strToParse);
             calculateCoefficientsInMap();
             long maxDegree = getMaxPolynomialDegree();
@@ -147,7 +145,11 @@ public class Main {
 
         long degreeLong;
         try {
-            degreeLong = Long.parseLong(degree.toString());
+            String degreeStr = degree.toString();
+            if (degreeStr.isEmpty()) {
+                degreeStr = "0";
+            }
+            degreeLong = Long.parseLong(degreeStr);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error while parsing degree");
         }
@@ -157,7 +159,6 @@ public class Main {
     }
 
     public static String validateAndApplyRegexp(String strToParse) {
-        validateInputString(strToParse.toLowerCase());
         return strToParse
                 .trim()
                 .replace(" ", "")
@@ -222,16 +223,16 @@ public class Main {
         if (maxDegree == 0) {
             System.out.println("There are no solutions, the equation is incorrect.");
         } else if (maxDegree == 1) {
-            Double c = finalMap.get(ZERO_DEGREE) * -1; // потому что перекидываем через равно
-            Double b = finalMap.get(FIRST_DEGREE);
+            double c = Optional.ofNullable(finalMap.get(ZERO_DEGREE)).orElse(0.0D) * -1; // потому что перекидываем через равно
+            double b = Optional.ofNullable(finalMap.get(FIRST_DEGREE)).orElse(0.0D);
             System.out.println("The solution is: ");
             System.out.printf("%.6f%n", (c / b));
         } else {
             // a - SECOND b - FIRST c = ZERO
             // D = b * b - 4 * a * c
-            Double a = finalMap.get(SECOND_DEGREE);
-            Double b = finalMap.get(FIRST_DEGREE);
-            Double c = finalMap.get(ZERO_DEGREE);
+            double a = Optional.ofNullable(finalMap.get(SECOND_DEGREE)).orElse(0.0D);
+            double b = Optional.ofNullable(finalMap.get(FIRST_DEGREE)).orElse(0.0D);
+            double c = Optional.ofNullable(finalMap.get(ZERO_DEGREE)).orElse(0.0D);
 
             double discriminant = b * b - 4 * a * c;
             System.out.println("Discriminant: " + discriminant);
