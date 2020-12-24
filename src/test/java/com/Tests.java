@@ -449,6 +449,63 @@ public class Tests {
     }
 
     @Test
+    public void customTest20() {
+        testStr = "3 + 2 * x + x ^ 2 = 0 - 5 - 8 * x";
+
+        String reducedForm = "Reduced form: 8 * X^0 + 10 * X^1 + 1 * X^2 = 0";
+        String polynomialDegree = "Polynomial degree: 2";
+        String discriminant = "Discriminant is strictly positive, the two solutions are: ";
+        String answer1 = "-9.123106";
+        String answer2 = "-0.876894";
+
+        Main.solveEquation(testStr);
+        String output = outputStreamCaptor.toString();
+        Assert.assertTrue(output.contains(reducedForm));
+        Assert.assertTrue(output.contains(polynomialDegree));
+        Assert.assertTrue(output.contains(discriminant));
+        Assert.assertTrue(output.contains(answer1));
+        Assert.assertTrue(output.contains(answer2));
+    }
+
+    @Test
+    public void customTest21() {
+        testStr = "5*x^2 +1*x + 6 = 0";
+
+        String reducedForm = "Reduced form: 6 * X^0 + 1 * X^1 + 5 * X^2 = 0";
+        String polynomialDegree = "Polynomial degree: 2";
+        String discriminant = "Discriminant is strictly negative, the two solutions are: ";
+        String answer1 = "-0.100000 + 1.090871i";
+        String answer2 = "-0.100000 - 1.090871i";
+
+        Main.solveEquation(testStr);
+        String output = outputStreamCaptor.toString();
+        Assert.assertTrue(output.contains(reducedForm));
+        Assert.assertTrue(output.contains(polynomialDegree));
+        Assert.assertTrue(output.contains(discriminant));
+        Assert.assertTrue(output.contains(answer1));
+        Assert.assertTrue(output.contains(answer2));
+    }
+
+    @Test
+    public void customTest22() {
+        testStr = "0 - 5 - 8 * x = 3 + 2 * x + x ^ 2";
+
+        String reducedForm = "Reduced form: - 8 * X^0 - 10 * X^1 - 1 * X^2 = 0";
+        String polynomialDegree = "Polynomial degree: 2";
+        String discriminant = "Discriminant is strictly positive, the two solutions are: ";
+        String answer1 = "-0.876894";
+        String answer2 = "-9.123106";
+
+        Main.solveEquation(testStr);
+        String output = outputStreamCaptor.toString();
+        Assert.assertTrue(output.contains(reducedForm));
+        Assert.assertTrue(output.contains(polynomialDegree));
+        Assert.assertTrue(output.contains(discriminant));
+        Assert.assertTrue(output.contains(answer1));
+        Assert.assertTrue(output.contains(answer2));
+    }
+
+    @Test
     public void customTest_two_equal_characters() {
         testStr = "4 *  X^2 == 16";
 

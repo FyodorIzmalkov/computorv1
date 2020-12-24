@@ -21,7 +21,9 @@ public class Main {
     private static final Map<Long, Double> finalMap = new HashMap<>();
 
     public static void main(String[] args) {
-        if (args.length == 1 || args.length == 2) {
+        if (args.length == 1) {
+            solveEquation(args[0]);
+        } else if (args.length == 2) {
             if (irreducibleFlag.equals(args[0])) {
                 irrFlag = true;
                 solveEquation(args[1]);
@@ -248,7 +250,7 @@ public class Main {
             if (!irrFlag) {
                 System.out.printf("%.6f%n", (c / b));
             } else {
-                printSolutionForOneDegree(c, b);
+                printSolutionForFirstDegree(c, b);
             }
         } else {
             // a - SECOND b - FIRST c = ZERO
@@ -319,7 +321,7 @@ public class Main {
         return (a < 0) ? -a : a;
     }
 
-    private static void printSolutionForOneDegree(double c, double b) {
+    private static void printSolutionForFirstDegree(double c, double b) {
         while (abs(c) % 1 != 0) {
             c *= 10;
             b *= 10;

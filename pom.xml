@@ -13,7 +13,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.jupiter.version>5.5.2</junit.jupiter.version>
         <junit.platform.version>1.5.2</junit.platform.version>
-        <target.dir>target</target.dir>
     </properties>
 
 
@@ -53,14 +52,13 @@
     </dependencies>
 
     <build>
-        <outputDirectory>${basedir}/${target.dir}/classes</outputDirectory>
-        <testOutputDirectory>${basedir}/${target.dir}/test-classes</testOutputDirectory>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.3.0</version>
                 <executions>
                     <execution>
+                        <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
@@ -76,6 +74,7 @@
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
+                            <outputDirectory>${project.basedir}/bin</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
